@@ -14,7 +14,29 @@ const app: Application = express();
 //parsers
 app.use(express.json());
 app.use(cookieParser());
-app.use(cors({ origin: ['http://localhost:5173'] }));
+
+// Update CORS configuration
+app.use(
+  cors({
+    origin: ['http://localhost:5173', 'http://localhost:5174'],
+    credentials: true,
+  }),
+);
+app.use(
+  cors({
+    origin: (origin, callback) => {
+      // Allow requests with no origin (like mobile apps, curl requests, etc.)
+      if (!origin) return callback(null, true);
+      if (origin.includes(origin)) {
+        return callback(null, true);
+      } else {
+        const msg = `The CORS policy for this site does not allow access from the specified Origin.`;
+        return callback(new Error(msg), false);
+      }
+    },
+    credentials: true,
+  }),
+);
 
 // application routes
 app.use('/api/v1', router);
